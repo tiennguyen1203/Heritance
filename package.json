@@ -1,0 +1,26 @@
+{
+  "name": "Heritance",
+  "version": "1.0.0",
+  "description": "Heritance",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc ",
+    "start:dev": "nodemon ./build/server.js"
+  },
+  "keywords": [],
+  "author": "bautistaj",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.11",
+    "@types/node": "^14.14.34",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-transformer-validator": "^0.9.1",
+    "class-validator": "^0.13.2",
+    "express": "^4.17.1",
+    "pg": "^8.5.1",
+    "typeorm": "^0.2.31"
+  }
+}
