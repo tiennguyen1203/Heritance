@@ -1,37 +1,45 @@
-import { FieldRepository } from './../repository/field.repository';
+import { ValidationError } from 'class-validator';
 import { getConnection } from 'typeorm';
+import { collectedDataMapper } from '../mapper/collected-data.mapper';
 import { CollectedDataRepository } from '../repository/collected-data.repository';
 import { CollectDataDto } from '../validators/collected-data';
-import { ValidationError } from 'class-validator';
-import { FieldService } from './field.service';
+import { fieldService } from './field.service';
 
-export class CollectedDataService {
-  private collectedDataRepository: CollectedDataRepository;
-  private fieldService: FieldService;
-  constructor() {
-    this.collectedDataRepository = getConnection().getCustomRepository(
-      CollectedDataRepository
-    );
-    this.fieldService = new FieldService();
-  }
-
+class CollectedDataService {
   // Have not implement the pagination
   public getListByFormId = async (formId: number) => {
-    return this.collectedDataRepository.find({ where: { formId } });
+    return getConnection()
+      .getCustomRepository(CollectedDataRepository)
+      .find({ where: { formId } });
   };
 
-  public createBulk = async (data: CollectDataDto[]) => {
-    await this.validateFormIds(data);
-    const result = await this.collectedDataRepository.save(data);
+  public collectData = async (formId: number, data: CollectDataDto[]) => {
+    const fields = await this.validateFormIds(formId, data);
+    const result = await getConnection()
+      .getCustomRepository(CollectedDataRepository)
+      .save(collectedDataMapper.toCollectedData({ formId, data, fields }));
     return result;
   };
 
-  private validateFormIds = async (data: CollectDataDto[]) => {
-    const totalFoundFields = await this.fieldService.countByIds(
+  private validateFormIds = async (formId: number, data: CollectDataDto[]) => {
+    const foundFields = await fieldService.getFieldsByIds(
       data.map((d) => d.fieldId)
     );
-    if (totalFoundFields !== data.length) {
+    console.log('foundFields:', foundFields);
+
+    if (foundFields.length !== data.length) {
+      // TODO: Implement the error handling
       throw new ValidationError();
     }
+
+    const totalBelongToFormFields = await fieldService.countByFormId(formId);
+    if (totalBelongToFormFields !== data.length) {
+      // TODO: Implement the error handling
+      throw new ValidationError();
+    }
+
+    return foundFields;
   };
 }
+
+export const collectedDataService = new CollectedDataService();

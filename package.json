@@ -5,14 +5,24 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc ",
-    "start:dev": "nodemon ./build/server.js"
+    "start:dev": "tsc && nodemon ./build/index.js",
+    "test": "tsc && NODE_ENV=test mocha **/**.spec.js --exit --bail"
   },
   "keywords": [],
   "author": "bautistaj",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/chai-http": "^4.2.0",
     "@types/express": "^4.17.11",
+    "@types/mocha": "^9.1.0",
     "@types/node": "^14.14.34",
+    "@types/supertest": "^2.0.11",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
+    "mocha": "^9.2.0",
+    "supertest": "^6.2.2",
     "typescript": "^4.2.3"
   },
   "dependencies": {
@@ -22,5 +32,15 @@
     "express": "^4.17.1",
     "pg": "^8.5.1",
     "typeorm": "^0.2.31"
+  },
+  "mocha": {
+    "timeout": 10000,
+    "exit": true,
+    "ignore": [
+      "node_modules"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
   }
 }

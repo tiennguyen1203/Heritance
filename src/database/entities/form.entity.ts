@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { FieldEntity } from './field.entity';
 
 @Entity('forms')
 export class FormEntity {
@@ -7,4 +8,7 @@ export class FormEntity {
 
   @Column()
   name: string;
+
+  @OneToMany(() => FieldEntity, (field) => field.form)
+  fields: FieldEntity[];
 }

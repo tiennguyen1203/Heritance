@@ -1,4 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { FieldType } from './field.entity';
+
+type CollectedDataJson = {
+  fieldId: number;
+  fieldName: string;
+  type: FieldType;
+  value: string[];
+};
 
 @Entity('collected_data')
 export class CollectedDataEntity {
@@ -6,8 +14,8 @@ export class CollectedDataEntity {
   id: number;
 
   @Column()
-  fieldId: number;
+  formId: number;
 
-  @Column('text', { array: true })
-  data: string[];
+  @Column('jsonb')
+  data: Array<CollectedDataJson>;
 }

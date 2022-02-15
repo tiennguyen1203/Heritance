@@ -4,26 +4,18 @@ import { FormEntity } from '../database/entities/form.entity';
 import { FieldEntity } from '../database/entities/field.entity';
 import { CreateFormDto } from '../validators/forms';
 
-export class FormService {
-  private formRepository: FormRepository;
-  private connection: Connection;
-
-  constructor() {
-    this.connection = getConnection();
-    this.formRepository = getConnection().getCustomRepository(FormRepository);
-  }
-
+class FormService {
   // Have not implement the pagination
   public getList = async () => {
-    return this.formRepository.find();
+    return getConnection().getCustomRepository(FormRepository).find();
   };
 
   public getById = async (id: number) => {
-    return this.formRepository.findOne(id);
+    return getConnection().getCustomRepository(FormRepository).findOne(id);
   };
 
   public createForm = async (createFormDto: CreateFormDto) => {
-    return await this.connection.transaction(
+    return await getConnection().transaction(
       async (transactionalEntityManager) => {
         const form = new FormEntity();
         form.name = createFormDto.name;
@@ -43,4 +35,23 @@ export class FormService {
       }
     );
   };
+
+  public getFormDetails(id: number) {
+    return getConnection()
+      .getCustomRepository(FormRepository)
+      .createQueryBuilder('form')
+      .leftJoinAndSelect('form.fields', 'field')
+      .where('form.id = :id', { id })
+      .select([
+        'form.id',
+        'form.name',
+        'field.id',
+        'field.name',
+        'field.type',
+        'field.isRequired',
+      ])
+      .getOne();
+  }
 }
+
+export const formService = new FormService();

@@ -1,25 +1,12 @@
 import { CollectDataDto } from './../validators/collected-data/index';
 import { transformAndValidate } from 'class-transformer-validator';
 import { Request, Response, Router } from 'express';
-import { FieldService } from '../services/field.service';
-import { FormService } from '../services/form.service';
+import { fieldService } from '../services/field.service';
+import { formService } from '../services/form.service';
 import { CreateFormDto } from '../validators/forms';
-import { CollectedDataService } from '../services/collected-data.service';
+import { collectedDataService } from '../services/collected-data.service';
 
 export class FormController {
-  public router: Router;
-  private formService: FormService;
-  private fieldService: FieldService;
-  private collectedDataService: CollectedDataService;
-
-  constructor() {
-    this.formService = new FormService();
-    this.fieldService = new FieldService();
-    this.collectedDataService = new CollectedDataService();
-    this.router = Router();
-    this.routes();
-  }
-
   public create = async (req: Request, res: Response) => {
     let createFormDto: CreateFormDto;
     try {
@@ -32,22 +19,27 @@ export class FormController {
         'Error when transform and validate CreateFormDto: ',
         JSON.stringify(error, null, 2)
       );
+      // TODO: Implement the class-validator error handling
       return res.status(400).send(error.map((e: any) => e.constraints));
     }
 
-    const newForm = await this.formService.createForm(createFormDto);
-    res.status(201).send(newForm);
+    const newForm = await formService.createForm(createFormDto);
+    return res.status(201).send(newForm);
   };
 
+  // TODO: Implement the pagination
   public getList = async (req: Request, res: Response) => {
-    const forms = await this.formService.getList();
+    const forms = await formService.getList();
     res.send(forms).json();
   };
 
-  // Have not implement the pagination
-  public getListFieldsByFormId = async (req: Request, res: Response) => {
-    const forms = await this.fieldService.getListByFormId(+req.params.id);
-    res.send(forms).json();
+  public getFormDetails = async (req: Request, res: Response) => {
+    const formDetails = await formService.getFormDetails(+req.params.id);
+    if (!formDetails) {
+      // TODO: Implement the error handling
+      return res.status(404).send({ message: 'Form not found' });
+    }
+    res.send(formDetails).json();
   };
 
   public collectData = async (req: Request, res: Response) => {
@@ -64,34 +56,38 @@ export class FormController {
       );
       throw error;
     }
-    const form = await this.formService.getById(+req.params.id);
+
+    const formId = +req.params.id;
+    const form = await formService.getById(formId);
     if (!form) {
       // TODO: Implement Error handling
       return res.status(404).send({ message: 'Form not found' });
     }
 
-    const totalRequiredFields = await this.fieldService.countByFormId(form.id, {
+    const totalRequiredFields = await fieldService.countByFormId(form.id, {
       isRequired: true,
     });
-    if (totalRequiredFields !== data.length) {
+    if (totalRequiredFields > data.length) {
       // TODO: Implement Error handling
       return res.status(400).send({ message: 'Missing required fields' });
     }
 
-    // TODO: Implement the logic to validate the formIds are belong to the same form
-
     // Can publish message to a queue/topic to handle async here to guarantee scalable
-    await this.collectedDataService.createBulk(data);
-    return res.status(200).send({ message: 'Data collected successfully' });
+    await collectedDataService.collectData(formId, data);
+    return res.status(201).send({ message: 'Data collected successfully' });
   };
 
-  /**
-   * Configure the routes of controller
-   */
-  public routes() {
-    this.router.get('/', this.getList);
-    this.router.post('/', this.create);
-    this.router.get('/:id/fields', this.getListFieldsByFormId);
-    this.router.post('/:id/collect', this.collectData);
-  }
+  public getCollectedDataById = async (req: Request, res: Response) => {
+    const formId = +req.params.id;
+    const form = await formService.getById(formId);
+    if (!form) {
+      // TODO: Implement error handling to handle 4xx error
+      return res.status(404).send({ message: 'Form not found' });
+    }
+
+    // TODO: Implement the pagination
+    const result = await collectedDataService.getListByFormId(formId);
+
+    return res.status(200).send(result);
+  };
 }

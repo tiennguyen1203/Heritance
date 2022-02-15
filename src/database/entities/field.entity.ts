@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { FormEntity } from './form.entity';
 
 export enum FieldType {
   TEXT = 'text',
@@ -21,4 +22,7 @@ export class FieldEntity {
 
   @Column({ default: true })
   isRequired: boolean;
+
+  @ManyToOne(() => FormEntity, (form) => form.fields)
+  form: FormEntity;
 }
