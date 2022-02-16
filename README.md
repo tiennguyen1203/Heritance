@@ -8,6 +8,9 @@
 ## API docs:
 `http://localhost:3000/api-docs/swagger.json` 
 
+## DB Diagram
+`https://dbdiagram.io/d/6209dce085022f4ee5895969`
+
 ## Deploy: 
 Go to docker docs then do step by step
 `https://docs.docker.com/language/nodejs/deploy/`
