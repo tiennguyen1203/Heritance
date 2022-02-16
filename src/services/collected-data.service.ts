@@ -28,13 +28,11 @@ class CollectedDataService {
     console.log('foundFields:', foundFields);
 
     if (foundFields.length !== data.length) {
-      // TODO: Implement the error handling
       throw new ValidationError();
     }
 
     const totalBelongToFormFields = await fieldService.countByFormId(formId);
     if (totalBelongToFormFields !== data.length) {
-      // TODO: Implement the error handling
       throw new ValidationError();
     }
 

@@ -22,7 +22,6 @@ export class FormController {
   public getFormDetails = async (req: Request, res: Response) => {
     const formDetails = await formService.getFormDetails(+req.params.id);
     if (!formDetails) {
-      // TODO: Implement the error handling
       return res.status(404).send({ message: 'Form not found' });
     }
     res.send(formDetails).json();
@@ -50,7 +49,7 @@ export class FormController {
       throw new BadRequestError('Missing required fields');
     }
 
-    // Can publish message to a queue/topic to handle async here to guarantee scalable
+    // SCALABILITY: Can publish message to a queue/topic to handle async here to guarantee scalable
     await collectedDataService.collectData(formId, data);
     return res.status(201).send({ message: 'Data collected successfully' });
   };
@@ -59,7 +58,6 @@ export class FormController {
     const formId = +req.params.id;
     const form = await formService.getById(formId);
     if (!form) {
-      // TODO: Implement error handling to handle 4xx error
       throw new NotFoundError('Form not found');
     }
 
