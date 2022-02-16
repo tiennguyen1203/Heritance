@@ -2,7 +2,6 @@ import { createConnection, getConnection } from 'typeorm';
 
 export const connectDb = async () => {
   const dbConfig = {
-    // TODO: Use env variable instead
     type: 'postgres',
     host: process.env.POSTGRES_HOST || 'localhost',
     port: process.env.POSTGRES_PORT || 5432,
