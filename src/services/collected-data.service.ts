@@ -1,4 +1,3 @@
-import { ValidationError } from 'class-validator';
 import { getConnection } from 'typeorm';
 import { collectedDataMapper } from '../mapper/collected-data.mapper';
 import { CollectedDataRepository } from '../repository/collected-data.repository';
@@ -14,29 +13,13 @@ class CollectedDataService {
   };
 
   public collectData = async (formId: number, data: CollectDataDto[]) => {
-    const fields = await this.validateFormIds(formId, data);
+    const fields = await fieldService.getFieldsByIds(
+      data.map((d) => d.fieldId)
+    );
     const result = await getConnection()
       .getCustomRepository(CollectedDataRepository)
       .save(collectedDataMapper.toCollectedData({ formId, data, fields }));
     return result;
-  };
-
-  private validateFormIds = async (formId: number, data: CollectDataDto[]) => {
-    const foundFields = await fieldService.getFieldsByIds(
-      data.map((d) => d.fieldId)
-    );
-    console.log('foundFields:', foundFields);
-
-    if (foundFields.length !== data.length) {
-      throw new ValidationError();
-    }
-
-    const totalBelongToFormFields = await fieldService.countByFormId(formId);
-    if (totalBelongToFormFields !== data.length) {
-      throw new ValidationError();
-    }
-
-    return foundFields;
   };
 }
 

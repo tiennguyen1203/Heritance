@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc ",
-    "start:dev": "tsc && nodemon ./build/index.js",
+    "start": "tsc && node ./build/index.js",
     "test": "tsc && NODE_ENV=test mocha ./build/**/**.spec.js --exit --bail"
   },
   "keywords": [],
