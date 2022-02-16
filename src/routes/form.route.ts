@@ -1,14 +1,22 @@
 import { Router } from 'express';
+import { makeValidateBody } from 'express-class-validator';
 import { FormController } from '../controller/form.controller';
+import { CollectDataDto } from '../validators/collected-data';
+import { CreateFormDto } from '../validators/forms';
 
 const formController = new FormController();
 const router = Router();
 
-const createFormRouter = router.post('/', formController.create);
+const createFormRouter = router.post(
+  '/',
+  makeValidateBody(CreateFormDto),
+  formController.create
+);
 const getForms = router.get('/', formController.getList);
 const getFormDetailsRouter = router.get('/:id', formController.getFormDetails);
 const collectDataRouter = router.post(
   '/:id/collect',
+  makeValidateBody(CollectDataDto),
   formController.collectData
 );
 const getCollectedDataRouter = router.get(

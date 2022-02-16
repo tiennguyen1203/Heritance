@@ -1,28 +1,14 @@
-import { CollectDataDto } from './../validators/collected-data/index';
-import { transformAndValidate } from 'class-transformer-validator';
-import { Request, Response, Router } from 'express';
+import { Request, Response } from 'express';
+import { BadRequestError, NotFoundError } from '../errors';
+import { collectedDataService } from '../services/collected-data.service';
 import { fieldService } from '../services/field.service';
 import { formService } from '../services/form.service';
 import { CreateFormDto } from '../validators/forms';
-import { collectedDataService } from '../services/collected-data.service';
+import { CollectDataDto } from './../validators/collected-data/index';
 
 export class FormController {
   public create = async (req: Request, res: Response) => {
-    let createFormDto: CreateFormDto;
-    try {
-      createFormDto = (await transformAndValidate(
-        CreateFormDto,
-        req.body
-      )) as CreateFormDto;
-    } catch (error: any) {
-      console.error(
-        'Error when transform and validate CreateFormDto: ',
-        JSON.stringify(error, null, 2)
-      );
-      // TODO: Implement the class-validator error handling
-      return res.status(400).send(error.map((e: any) => e.constraints));
-    }
-
+    const createFormDto: CreateFormDto = req.body;
     const newForm = await formService.createForm(createFormDto);
     return res.status(201).send(newForm);
   };
@@ -43,25 +29,14 @@ export class FormController {
   };
 
   public collectData = async (req: Request, res: Response) => {
-    let data: CollectDataDto[];
-    try {
-      data = (await transformAndValidate(
-        CollectDataDto,
-        req.body
-      )) as CollectDataDto[];
-    } catch (error) {
-      console.error(
-        'Error when transform and validate CollectDataDto: ',
-        JSON.stringify(error, null, 2)
-      );
-      throw error;
-    }
+    // TODO: Custom logger instead of console.log
+    console.log('Collecting data with payload:', req.body);
+    const data: CollectDataDto[] = req.body;
 
     const formId = +req.params.id;
     const form = await formService.getById(formId);
     if (!form) {
-      // TODO: Implement Error handling
-      return res.status(404).send({ message: 'Form not found' });
+      throw new NotFoundError('Form not found');
     }
 
     // SCALABILITY: Can use redis/mem-cache to cache list requiredFields of form
@@ -72,7 +47,7 @@ export class FormController {
     if (
       !requiredFields.every((field) => collectedDataFieldIds.includes(field.id))
     ) {
-      return res.status(400).send({ message: 'Missing required fields' });
+      throw new BadRequestError('Missing required fields');
     }
 
     // Can publish message to a queue/topic to handle async here to guarantee scalable
@@ -85,7 +60,7 @@ export class FormController {
     const form = await formService.getById(formId);
     if (!form) {
       // TODO: Implement error handling to handle 4xx error
-      return res.status(404).send({ message: 'Form not found' });
+      throw new NotFoundError('Form not found');
     }
 
     // TODO: Implement the pagination

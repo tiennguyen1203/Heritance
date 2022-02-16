@@ -1,4 +1,4 @@
-import { createConnection } from 'typeorm';
+import 'reflect-metadata';
 import { connectDb } from './connection';
 import { app } from './server';
 
