@@ -24,6 +24,7 @@ export const errorHandler = (
   if (err instanceof CommonError) {
     return res.status(err.statusCode).send(err.serializeErrors());
   }
+  console.error('An error has occurred', err);
 
   const formattedError: CommonErrorResponse = {
     message: 'An error has occurred',
