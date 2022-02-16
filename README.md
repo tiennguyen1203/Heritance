@@ -17,7 +17,7 @@ Go to docker docs then do step by step
 
 ## Security:
 1. docs of docker have the explanation of secure docker image
-2. We can use authentication mechanism to ensure that only the owner can get createdForm and collected data
+2. We can use authentication mechanism to ensure that only the owner can get the created forms and collected data
 
 ## CI/CD: 
 * Setup CI/CD with github action
