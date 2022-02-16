@@ -17,6 +17,12 @@ class FieldService {
       .getCustomRepository(FieldRepository)
       .count({ where: { ...condition, formId } });
   };
+
+  public getRequiredFieldsByFormId = async (formId: number) => {
+    return getConnection()
+      .getCustomRepository(FieldRepository)
+      .find({ where: { formId, isRequired: true } });
+  };
 }
 
 export const fieldService = new FieldService();

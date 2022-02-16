@@ -64,11 +64,14 @@ export class FormController {
       return res.status(404).send({ message: 'Form not found' });
     }
 
-    const totalRequiredFields = await fieldService.countByFormId(form.id, {
-      isRequired: true,
-    });
-    if (totalRequiredFields > data.length) {
-      // TODO: Implement Error handling
+    // SCALABILITY: Can use redis/mem-cache to cache list requiredFields of form
+    const requiredFields = await fieldService.getRequiredFieldsByFormId(
+      form.id
+    );
+    const collectedDataFieldIds = data.map((d) => d.fieldId);
+    if (
+      !requiredFields.every((field) => collectedDataFieldIds.includes(field.id))
+    ) {
       return res.status(400).send({ message: 'Missing required fields' });
     }
 
