@@ -23,3 +23,6 @@ Go to docker docs then do step by step
 * Setup CI/CD with github action
 * CI to run test each time we push/merge code to master/develop branch
 * CD to auto rebuild docker image, deploy to cloud
+
+## Scalability:
+Please check the SCALABILITY: in source code.

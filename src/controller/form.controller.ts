@@ -103,7 +103,7 @@ export class FormController {
       throw new NotFoundError('Form not found');
     }
 
-    // SCALABILITY: Can use redis/mem-cache to cache list requiredFields of form
+    // SCALABILITY: Can use redis/mem-cached to cache list requiredFields of form
     const requiredFields = await fieldService.getRequiredFieldsByFormId(
       form.id
     );
